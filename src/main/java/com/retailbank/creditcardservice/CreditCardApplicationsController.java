@@ -14,9 +14,12 @@ public class CreditCardApplicationsController {
   }
 
   @PostMapping("/credit-card-applications")
-  public void applyForCreditCard(final ApplyForCeditCardRequest applyForCeditCardRequest){
+  public ApplyForCreditCardResponse applyForCreditCard(final ApplyForCeditCardRequest applyForCeditCardRequest){
     final int citizenNumber = applyForCeditCardRequest.getCitizenNumber();
-    restTemplate.postForObject("http://localhost:8080/credit-scores", new CreditCheckRequest(citizenNumber), CreditCheckResponse.class);
-
+    final CreditCheckResponse creditCheckResponse = restTemplate.postForObject("http://localhost:8080/credit-scores", new CreditCheckRequest(citizenNumber), CreditCheckResponse.class);
+    if(creditCheckResponse.getScore() == Score.HIGH && applyForCeditCardRequest.getCardType() == CardType.GOLD){
+      return new ApplyForCreditCardResponse(Status.GRANTED);
+    }
+    throw new RuntimeException("Card and score not yet implemented");
   }
 }
